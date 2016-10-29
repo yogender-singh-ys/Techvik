@@ -90,6 +90,9 @@ Cache::config('default', array('engine' => 'File'));
  *
  * ));
  */
+ 
+ define('APP_NAME','Techvik.com');
+ 
 Configure::write('Dispatcher.filters', array(
 	'AssetDispatcher',
 	'CacheDispatcher'
@@ -109,3 +112,5 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+
