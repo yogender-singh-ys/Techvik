@@ -1,1 +1,1 @@
-<div id="<?php echo $key; ?>Message" class="<?php echo !empty($params['class']) ? $params['class'] : 'message'; ?>"><?php echo $message; ?></div>
+<div class="btn btn-info btn-sm" style="margin-top: 10px; margin-bottom: 10px;" id="<?php echo $key; ?>Message" ><?php echo $message; ?></div>

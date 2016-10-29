@@ -1,56 +1,50 @@
 <?php
-/**
- * Static content controller.
- *
- * This file will render views from views/pages/
- *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       app.Controller
- * @since         CakePHP(tm) v 0.2.9
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
- */
 
 App::uses('AppController', 'Controller');
 
-/**
- * Static content controller
- *
- * Override this controller by placing a copy in controllers directory of an application
- *
- * @package       app.Controller
- * @link http://book.cakephp.org/2.0/en/controllers/pages-controller.html
- */
+
 class PagesController extends AppController {
 
-/**
- * This controller does not use a model
- *
- * @var array
- */
-	public $uses = array();
+    public $uses = array('User');
 
-/**
- * Displays a view
- *
- * @return void
- * @throws NotFoundException When the view file could not be found
- *	or MissingViewException in debug mode.
- */
+
 	public function display() {
 		
 		echo 'display'; die();
 	}
 	
-	public function admin_index() {
-		echo $APP_NAME;
-		$this->layout = 'admin';
+	public function admin_index(){
+		
+	  $this->layout = 'admin_login'; 
+		
+	  if(!empty($this->request->data)){
+	  	
+	  	if(( $this->request->data['User']['username'] !=  "" )&&(  $this->request->data['User']['password'] !=  "" )){
+	  		 
+	  		  $userData = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'],'User.password' => $this->request->data['User']['password'],'admin'=>'1')));
+	  		  
+	  		  if(count($userData)>0){
+			  	$this->Session->write("ADMIN_USER",true);
+			  	return $this->redirect(array('controller' => 'pages', 'action' => 'dashboard','admin'=>true)); 
+			  }else{
+			    $this->Flash->set('Username and Password do not match.', array('element' => 'warning'));	
+		      } 
+	  		
+		}else{
+			  $this->Flash->set('Username and Password cannot be blank.', array('element' => 'warning'));	
+		}
+	  }
+	
 	}
+
+    public function admin_logout(){
+    	$this->Session->destroy("ADMIN_USER");
+		return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));
+	}
+
+    public function admin_dashboard(){
+    	$this->layout = "admin_dashboard";
+    }
 }
+
+?>
