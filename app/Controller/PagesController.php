@@ -43,7 +43,11 @@ class PagesController extends AppController {
 	}
 
     public function admin_dashboard(){
-    	$this->layout = "admin_dashboard";
+    	if($this->Session->read('ADMIN_USER')){
+			$this->layout = "admin_dashboard";
+		}else{
+		  return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+		}
     }
 }
 

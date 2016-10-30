@@ -1,1 +1,0 @@
-<div class="btn btn-success btn-sm" style="margin-top: 10px; margin-bottom: 10px;" id="<?php echo $key; ?>Message" ><?php echo $message; ?></div>

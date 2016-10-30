@@ -53,7 +53,8 @@
 		  	<div class="sidebar content-box" style="display: block;">
                 <ul class="nav">
                     <!-- Main menu -->
-                    <li class="current"><a href="#">Categories</a></li>
+                    <li class="current"><?php echo $this->Html->link('Categories',array('controller' => 'categories','action' => 'index','admin' => true)); ?></li>
+                    
                     <li class="current"><a href="#">Articles</a></li>
 
                 </ul>
