@@ -20,8 +20,23 @@
 						    <?php foreach($categories as $category ){ ?>
 							   <tr class="odd gradeX">
 								<td><?php echo $category['Category']['name'] ?></td>
-								<td>Internet
-									 Explorer 4.0</td>
+								<td>
+								   <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="example">
+									
+									<tbody>
+									  <?php foreach($category['Categories'] as $subCategory ){ ?>
+									   <tr>
+									   	 <td><?php echo $subCategory['name'] ?></td>
+									   	 <td>
+									   	 	<?php echo $this->Html->link('Edit',array('controller' => 'categories','action' => 'add/'.$subCategory['id'],'admin' => true),array('class'=>'btn btn-warning btn-xs',)); ?>
+									        <?php echo $this->Html->link('Delete',array('controller' => 'categories','action' => 'delete/'.$subCategory['id'],'admin' => true),array('class'=>'btn btn-danger btn-xs')); ?>
+									   	 </td>
+									   </tr>
+									  <?php } ?>  
+									</tbody>
+									
+								   </table>	
+								</td>
 								<td>
 									<?php echo $this->Html->link('Edit',array('controller' => 'categories','action' => 'add/'.$category['Category']['id'],'admin' => true),array('class'=>'btn btn-warning')); ?>
 									<?php echo $this->Html->link('Delete',array('controller' => 'categories','action' => 'delete/'.$category['Category']['id'],'admin' => true),array('class'=>'btn btn-danger')); ?>

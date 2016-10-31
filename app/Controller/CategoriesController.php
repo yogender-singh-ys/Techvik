@@ -9,7 +9,8 @@ class CategoriesController extends AppController {
 	public function admin_index(){
 		if($this->Session->read('ADMIN_USER')){
 			$this->layout = "admin_dashboard";
-			$categories = $this->Category->find('all',array('conditions'=>array('deleted'=>1)));
+			$categories = $this->Category->find('all',array('conditions'=>array('deleted'=>1,'category_id'=>0)));
+			//echo '<pre>'; print_r($categories); die();
 			$this->set('categories',$categories);
 		}else{
 		  return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
@@ -20,10 +21,14 @@ class CategoriesController extends AppController {
         if($this->Session->read('ADMIN_USER')){
 			$this->layout = "admin_dashboard";
 			
+			$categories = $this->Category->find('list',array('conditions'=>array('deleted'=>1,'category_id'=>0)));
+			$categories[0] = "Default";
+			$this->set('categories',$categories);
+		
 			if(!empty($id)){
 				 // redirect to edit page
 				 if(!empty($this->request->data)){
-				 	  $validatedResponse = $this->Misc->validateData($this->request->data['Category'],array('name','status'));
+				 	  $validatedResponse = $this->Misc->validateData($this->request->data['Category'],array('name'=>'Name','status'=>'Status'));
 					  if(count($validatedResponse)>0)
 					  {
 					  	$this->Flash->set( ucfirst(implode('<br/>',$validatedResponse)) , array('element' => 'warning'));	
@@ -32,7 +37,9 @@ class CategoriesController extends AppController {
 					  	 $this->request->data['Category']['alias'] = $this->Misc->slugify($this->request->data['Category']['name']);
 					  	 $this->Category->create();
 					  	 $this->Category->save(($this->request->data));
-					  	 $this->Flash->set( "Category edited." , array('element' => 'success'));	
+					  	 $this->Flash->set( "Category edited." , array('element' => 'success'));
+					  	 $category = $this->Category->findById($id);
+				 	     $this->request->data = $category;	
 		 			  }
 				 }else{
 				 	$category = $this->Category->findById($id);
@@ -41,7 +48,7 @@ class CategoriesController extends AppController {
 			}else{
 				// redirect to add page 
 				if(!empty($this->request->data)){
-				  $validatedResponse = $this->Misc->validateData($this->request->data['Category'],array('name','status'));
+				  $validatedResponse = $this->Misc->validateData($this->request->data['Category'],array('name'=>'Namme','status'=>'Stus'));
 				  if(count($validatedResponse)>0)
 				  {
 				  	$this->Flash->set( ucfirst(implode('<br/>',$validatedResponse)) , array('element' => 'warning'));	
@@ -50,7 +57,9 @@ class CategoriesController extends AppController {
 				  	 $this->request->data['Category']['alias'] = $this->Misc->slugify($this->request->data['Category']['name']);
 				  	 $this->Category->create();
 				  	 $this->Category->save(($this->request->data));
-				  	 $this->Flash->set( "Category created." , array('element' => 'success'));	
+				  	 $this->Flash->set( "Category created." , array('element' => 'success'));
+				  	 $category = $this->Category->findById($this->Category->getInsertID());
+				 	 $this->request->data = $category;	
 	 			  }
 				}
 			}
@@ -63,7 +72,8 @@ class CategoriesController extends AppController {
     public function admin_delete($id) {
       if($this->Session->read('ADMIN_USER')){
       	if(!empty($id)){
-			$deletedCategory = $this->Category->delete($id);
+      		
+			$deletedCategory = $this->Category->save(array('Category'=>array('id'=>$id,'deleted'=>'0')));
 			if($deletedCategory){
 				$this->Flash->set( "Category deleeted." , array('element' => 'success'));
 			}else{

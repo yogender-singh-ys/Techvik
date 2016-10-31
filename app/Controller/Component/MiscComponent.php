@@ -39,9 +39,9 @@ class MiscComponent extends Component {
 		if(count($emptyData)>0){
 			foreach ($data as $key => $value ){
 			
-			if( in_array($key,$emptyData) && ( trim($data[$key]) == "" ) )
+			if( array_key_exists($key,$emptyData) && ( trim($data[$key]) == "" ) )
 			{
-				$error_msg[] = $key." must have value";
+				$error_msg[] = $emptyData[$key]." must have value";
 			}
 		  }
 		} 
@@ -50,9 +50,9 @@ class MiscComponent extends Component {
 	    if(count($numericData)>0){
 			foreach ($data as $key => $value ){
 			
-			if( in_array($key,$emptyData) && (!is_numeric($data[$key])))
+			if( array_key_exists($key,$emptyData) && (!is_numeric($data[$key])))
 			{
-				$error_msg[] = $key." must have numeric value";
+				$error_msg[] = $emptyData[$key]." must have numeric value";
 			}
 		   } 
 		}
