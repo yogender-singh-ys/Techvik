@@ -1,4 +1,5 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<?php echo $this->Html->script('ckeditor/ckeditor'); ?>
 <script>
 	$( document ).ready(function() {
         $('.outer_checkbox').change(function () {
@@ -12,6 +13,8 @@
 		        $(class_name).prop('checked', false);
 		    }
 		});
+		
+		CKEDITOR.replace( 'ArticleContent' );
     });
 </script>
 <div class="content-box-large" style="margin: 0px;" >
@@ -91,7 +94,7 @@
 						  <div class="form-group">
 						    <label  class="col-sm-3 control-label">content<span style="color:red">*</span></label>
 						    <div class="col-sm-9">
-						      <?php echo $this->Form->input('content', array('type' => 'text',"label"=>false,"div"=>false,"class"=>"form-control"));  ?>
+						      <?php echo $this->Form->input('content', array('type' => 'textarea',"label"=>false,"div"=>false,"class"=>"form-control"));  ?>
 						    </div>
 						  </div>
 						  
@@ -124,7 +127,69 @@
 			  	</div>
 			</div>
            <!-- Information Section ends-->
-           
+            
+           <!-- Category Section starts-->
+           <?php if($this->request->data['Article']['id']){ ?>
+           <?php if(count($categories)>0){ ?>
+           <div class="content-box-large">
+		     <div class="panel-body">
+			    <label  class="col-sm-12 control-label"><h4>Category </h4></label>
+			    <?php echo $this->Form->create(null, array('url' => array('controller' => 'articles', 'action' => 'categories','admin'=>true),"class"=>"'form-horizontal","role"=>"form")); ?> 
+			    
+			    
+			    
+			    &nbsp;
+				 <?php echo $this->Form->hidden('article_id',array('value'=>$this->request->data['Article']['id'])); ?>
+				 <div class="col-sm-12" style="text-align: left">
+				   <?php 
+				       $category_counter = 1;
+				       foreach ($categories as $category) {  ?>
+				       
+				       <div class="col-sm-3" style="padding-bottom: 10px; ">
+				           <label>
+				             
+				            <?php if(in_array($category['Category']['id'],$selectedCategories)){ ?>
+				         	   <?php echo $this->Form->checkbox('category.'.$category['Category']['id'],array("class"=>"outer_checkbox","role"=> $category['Category']['id'],'checked'=>true)); ?>
+				         	<?php }else{ ?>
+				         	    <?php echo $this->Form->checkbox('category.'.$category['Category']['id'],array("class"=>"outer_checkbox","role"=> $category['Category']['id'])); ?>
+				         	<?php } ?>
+				         	<?php echo $category['Category']['name']?>
+				           </label>
+				           <?php foreach ($category['Categories'] as $sub_category){ ?>
+				             <label style="padding-left: 30px;">
+				               <?php if(in_array($sub_category['id'],$selectedCategories)){ ?>
+				                  <?php echo $this->Form->checkbox('category.'.$sub_category['id'],array("class"=>"innner_checkbox_".$category['Category']['id'],'checked'=>true)); ?>
+				               <?php }else{ ?>
+				                  <?php echo $this->Form->checkbox('category.'.$sub_category['id'],array("class"=>"innner_checkbox_".$category['Category']['id'])); ?>
+				               <?php } ?>
+				             	
+				         	    <?php echo $sub_category['name']; ?>
+				             </label>
+				           <?php  } ?>
+				       </div>
+				       <?php if( $category_counter == 4){echo '</div><div class="col-sm-12" style="text-align: center" >'; $category_counter = 0; }else{$category_counter++;} ?>
+			        
+			     <?php  } ?>			
+			    </div>
+			    
+			    <div class="form-group">
+			       <label  class="col-sm-12 control-label" style=" ">Please make sure to add a category to your Article</label>
+		        </div>
+			    
+			    &nbsp;
+			    <div class="form-group">
+			     
+			      <div class="col-sm-9">
+			        <?php echo $this->Form->submit('Add', array("label"=>false,"div"=>false,"class"=>"btn btn-info"));  ?>
+			      </div>
+			    </div>
+			    
+			    <?php echo $this->Form->end(); ?>
+			 </div>
+		   </div> 	    
+           <?php } ?>
+           <?php } ?>
+		   <!-- Category Section ends-->
            
 
            <!-- Video Section starts-->
@@ -188,39 +253,25 @@
 		   <!-- Video Section ends-->
 		   
 		   
-		   <!-- Category Section starts-->
-           <?php if($this->request->data['Article']['id']){ ?>
-           <?php if(count($categories)>0){ ?>
+		   <!-- Image Section starts-->
+		   <?php if($this->request->data['Article']['id']){ ?>
+           
            <div class="content-box-large">
 		     <div class="panel-body">
-			    <label  class="col-sm-12 control-label"><h4>Category </h4></label>
-			    <?php echo $this->Form->create(null, array('url' => array('controller' => 'articles', 'action' => 'categories','admin'=>true),"class"=>"'form-horizontal","role"=>"form")); ?> 
+			    <label  class="col-sm-12 control-label"><h4>Images</h4></label>
+			    
+			    <?php echo $this->Form->create('Images', array('type' => 'file','url' => array('controller' => 'articles', 'action' => 'images','admin'=>true),"class"=>"'form-horizontal","role"=>"form")); ?> 
 			    
 			    
+				<?php echo $this->Form->hidden('article_id',array('value'=>$this->request->data['Article']['id'])); ?>
+				
+				<div class="form-group">
+				    <label  class="col-sm-3 control-label">Video keys<span style="color:red">*</span></label>
+				    <div class="col-sm-9">
+				      <?php echo $this->Form->input('images][', array('type' => 'file',"label"=>false,"div"=>false,"class"=>"form-control","multiple","multiple"));  ?>
+				    </div>
+				 </div>
 			    
-			    &nbsp;
-				 <?php echo $this->Form->hidden('video_id',array('value'=>$this->request->data['Article']['id'])); ?>
-				 <div class="col-sm-12" style="text-align: left">
-				   <?php 
-				       $category_counter = 1;
-				       foreach ($categories as $category) {  ?>
-				       
-				       <div class="col-sm-3" style="padding-bottom: 10px; ">
-				           <label>
-				         	<?php echo $this->Form->checkbox('category][',array("class"=>"outer_checkbox","role"=> $category['Category']['id'])); ?>
-				         	<?php echo $category['Category']['name']?>
-				           </label>
-				           <?php foreach ($category['Categories'] as $sub_category){ ?>
-				             <label style="padding-left: 30px;">
-				             	<?php echo $this->Form->checkbox('category][',array("class"=>"innner_checkbox_".$category['Category']['id'])); ?>
-				         	    <?php echo $sub_category['name']; ?>
-				             </label>
-				           <?php  } ?>
-				       </div>
-				       <?php if( $category_counter == 4){echo '</div><div class="col-sm-12" style="text-align: center" >'; $category_counter = 0; }else{$category_counter++;} ?>
-			        
-			     <?php  } ?>			
-			    </div>
 			    
 			    &nbsp;
 			    <div class="form-group">
@@ -230,12 +281,12 @@
 			      </div>
 			    </div>
 			    
-			    <?php $this->Form->end(); ?>
+			    <?php echo $this->Form->end(); ?>
 			 </div>
 		   </div> 	    
+           
            <?php } ?>
-           <?php } ?>
-		   <!-- Category Section ends-->
+		   <!-- Image Section ends-->
 		   
 		   
 		   

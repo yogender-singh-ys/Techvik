@@ -41,7 +41,7 @@ class MiscComponent extends Component {
 			
 			if( array_key_exists($key,$emptyData) && ( trim($data[$key]) == "" ) )
 			{
-				$error_msg[] = $emptyData[$key]." must have value";
+				$error_msg[] = $emptyData[$key]." must have value.";
 			}
 		  }
 		} 

@@ -12,7 +12,7 @@
 							<tr>
 								
 								<th>Heading</th>
-								<th>Images</th>
+								<th>Category</th>
 								<th>Video</th>
 								<th>Actions</th>
 							</tr>
@@ -22,8 +22,8 @@
 						    <?php foreach($articles as $article ){ ?>
 							   <tr class="odd gradeX">
 								<td><h5><?php echo $article['Article']['headline'] ?></h5><?php echo $article['Article']['subheadline'] ?></td>
-								<td></td>
-								<td></td>
+								<td><?php echo count($article['Categories']) ?></td>
+								<td><?php echo count($article['Videos']) ?></td>
 								<td>
 									<?php echo $this->Html->link('Edit',array('controller' => 'articles','action' => 'add/'.$article['Article']['id'],'admin' => true),array('class'=>'btn btn-warning')); ?>
 									<?php echo $this->Html->link('Delete',array('controller' => 'articles','action' => 'delete/'.$article['Article']['id'],'admin' => true),array('class'=>'btn btn-danger')); ?>
