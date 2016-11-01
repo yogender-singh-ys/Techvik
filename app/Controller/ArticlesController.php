@@ -9,6 +9,8 @@ class ArticlesController extends AppController {
 	public function admin_index(){
 		if($this->Session->read('ADMIN_USER')){
 			$this->layout = "admin_dashboard";
+			$articles = $this->Article->find('all',array('conditions'=>array('deleted'=>1)));
+			$this->set('articles',$articles);
 		}else{
 		  return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
 		}
@@ -64,7 +66,24 @@ class ArticlesController extends AppController {
 		}
 	}
 
-    public function admin_delete($id) {}
+    public function admin_delete($id) {
+      if($this->Session->read('ADMIN_USER')){
+      	if(!empty($id)){
+      		
+			$deletedArticle = $this->Article->save(array('Article'=>array('id'=>$id,'deleted'=>'0')));
+			if($deletedArticle){
+				$this->Flash->set( "Article deleted." , array('element' => 'success'));
+			}else{
+				$this->Flash->set( "Invalid data." , array('element' => 'warning'));
+			}
+			return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		}else{
+			return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		}
+      }else{
+	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	  }
+	}
 	
 	
 }

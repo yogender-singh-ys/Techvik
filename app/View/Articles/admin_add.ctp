@@ -24,6 +24,16 @@
 						    </div>
 						  </div>
 						  
+						  <?php if(!empty($this->request->data['Article']['id'])){ ?>
+						      &nbsp;
+							  <div class="form-group">
+							    <label  class="col-sm-3 control-label">Article Alias</label>
+							    <div class="col-sm-9">
+							      <?php echo $this->request->data['Article']['alias'] ?>
+							    </div>
+							  </div>
+						  <?php } ?>
+						  
 						  &nbsp;
 						  <div class="form-group">
 						    <label  class="col-sm-3 control-label">Sub-Headline<span style="color:red">*</span></label>

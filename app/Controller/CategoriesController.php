@@ -10,7 +10,6 @@ class CategoriesController extends AppController {
 		if($this->Session->read('ADMIN_USER')){
 			$this->layout = "admin_dashboard";
 			$categories = $this->Category->find('all',array('conditions'=>array('deleted'=>1,'category_id'=>0)));
-			//echo '<pre>'; print_r($categories); die();
 			$this->set('categories',$categories);
 		}else{
 		  return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
