@@ -3,7 +3,7 @@ App::uses('AppController', 'Controller');
 
 class ArticlesController extends AppController {
 	
-	public $uses = array('Article');
+	public $uses = array('Article','Video','Category');
 	public $components = array('Misc');
 	
 	public function admin_index(){
@@ -21,6 +21,12 @@ class ArticlesController extends AppController {
 			$this->layout = "admin_dashboard";
 			
 			if(!empty($id)){
+				 // extract video data 
+				 $videos = $this->Video->find('all',array('conditions'=>array('article_id'=>$id)));
+				 $this->set('videos',$videos);
+				 // extract category data
+				 $categories = $this->Category->find('all',array('conditions'=>array('deleted'=>'1','category_id'=>'0')));
+				 $this->set('categories',$categories); 
 				 // redirect to edit page
 				 if(!empty($this->request->data)){
 				 	  $validatedResponse = $this->Misc->validateData($this->request->data['Article'],array('headline'=>'Headline','subheadline'=>'Sub-Headline','page_title'=>'Webpage title','keywords'=>'keywords','meta_desc'=>'Meta description','content'=>'Content','status'=>'Status'));
@@ -83,6 +89,70 @@ class ArticlesController extends AppController {
       }else{
 	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
 	  }
+	}
+
+    public function admin_videos(){
+      if($this->Session->read('ADMIN_USER')){
+      	if(!empty($this->request->data)){
+		  
+		  $validatedResponse = $this->Misc->validateData($this->request->data['Video'],array('video_id'=>'Video data',''=>'Video keys'));	
+		  if(count($validatedResponse)>0){
+		  	if(!empty($this->request->data['Video']['video_id'])){
+		  	  $this->Flash->set( ucfirst(implode('<br/>',$validatedResponse)) , array('element' => 'warning'));	
+			  return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Video']['video_id'],'admin'=>true));
+			}else{
+				$this->Flash->set( "Invalid Data provide video information in blank" , array('element' => 'warning'));	
+			  return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+			}
+		  }else{
+		  	$keyArray = explode(',',str_replace(' ','',$this->request->data['Video']['video_keys']));
+		  	$data = array();
+		  	foreach($keyArray as $key){
+				if(!empty(trim($key))){
+					$tempArray = array();
+					$tempArray['Video']['youtube_key'] = $key ;
+					$tempArray['Video']['article_id'] = $this->request->data['Video']['video_id'] ;
+					$data[] = $tempArray;
+				}
+			}
+			$this->Video->create();
+		    $this->Video->saveAll($data);
+		    $this->Flash->set( "Video updated." , array('element' => 'success'));	
+		    return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Video']['video_id'],'admin'=>true));
+		  }
+			
+		}else{
+		  return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));		
+		}
+      }else{
+	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	  }
+	}
+
+    public function admin_deletevideo($id) {
+       if($this->Session->read('ADMIN_USER')){
+       	  if(!empty($id)){
+       	  	 $video = $this->Video->findById($id);
+       	  	 //echo $video['Video']['article_id'];
+       	  	 //echo '<pre>'; print_r($video); die();
+		  	 $deleted = $this->Video->delete($id);
+		  	 if($deleted){
+			 	$this->Flash->set( "Video deleted." , array('element' => 'success'));	
+		        return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$video['Video']['article_id'],'admin'=>true));
+			 }else{
+			 	$this->Flash->set( "Invalid data" , array('element' => 'warning'));	
+		        return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));
+			 }
+		  }else{
+		  	return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		  }
+       }else{
+	   	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	   }
+	}
+
+    public function admin_categories() {
+      echo '<pre>'; print_r($this->request->data); die();
 	}
 	
 	
