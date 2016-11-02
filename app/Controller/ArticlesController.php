@@ -3,8 +3,8 @@ App::uses('AppController', 'Controller');
 
 class ArticlesController extends AppController {
 	
-	public $uses = array('Article','Video','Category','ArticleCategory');
-	public $components = array('Misc');
+	public $uses = array('Article','Video','Category','ArticleCategory','Image');
+	public $components = array('Misc','FileUpload');
 	
 	public function admin_index(){
 		if($this->Session->read('ADMIN_USER')){
@@ -29,7 +29,11 @@ class ArticlesController extends AppController {
 				 $this->set('categories',$categories); 
 				 // extract already selected categories
 				 $selectedCategories = $this->ArticleCategory->find('list',array('conditions'=>array('article_id'=>$id),'fields' => array('category_id')));
-				 $this->set('selectedCategories',$selectedCategories); 
+				 $this->set('selectedCategories',$selectedCategories);
+				 // extrct all images
+				 $images = $this->Image->find('all',array('conditions'=>array('article_id'=>$id))); 
+				 //echo '<pre>'; print_r($images); die();
+				 $this->set('images',$images);
 				 // redirect to edit page
 				 if(!empty($this->request->data)){
 				 	  $validatedResponse = $this->Misc->validateData($this->request->data['Article'],array('headline'=>'Headline','subheadline'=>'Sub-Headline','page_title'=>'Webpage title','keywords'=>'keywords','meta_desc'=>'Meta description','content'=>'Content','status'=>'Status'));
@@ -197,8 +201,68 @@ class ArticlesController extends AppController {
 	}
 	
 	public function admin_images() {
-      echo '<pre>'; print_r($this->request->data); die();
+	  if($this->Session->read('ADMIN_USER')){
+	  	 if(!empty($this->request->data['Images']['article_id'])){
+		 	if(count($this->request->data['Images']['images'])>0){
+		 		$imagesArray = $this->request->data['Images']['images'];
+		 		$article = $this->Article->findById($this->request->data['Images']['article_id']);
+				$uploadInfo = $this->FileUpload->upload($imagesArray,'img'.DS.'articles'.DS,$article['Article']['alias']);
+				if( ($uploadInfo['status']) && (count($uploadInfo['error'])==0) && (count($uploadInfo['images'])>0) ){
+					$data = array();
+					foreach($uploadInfo['images'] as $img){
+						$temp_array = array();
+						$temp_array['Image']['path'] = $img;
+						$temp_array['Image']['article_id'] = $this->request->data['Images']['article_id'];
+						$data[] = $temp_array;
+					}
+					$this->Image->create();
+					$this->Image->saveAll($data);
+					$this->Flash->set( 'Images uploaded.' , array('element' => 'success'));	
+		   	    	return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Images']['article_id'],'admin'=>true));
+					
+				}else{
+					$this->Flash->set( implode('<br/>',$uploadInfo['error']) , array('element' => 'warning'));	
+		   	    	return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Images']['article_id'],'admin'=>true));
+				}
+			}else{
+				$this->Flash->set( "Please select at least one image to upload." , array('element' => 'warning'));	
+		   	    return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Images']['article_id'],'admin'=>true));
+			}
+		 }else{
+		 	$this->Flash->set( "Invalid Data " , array('element' => 'warning'));	
+		   	return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		 }
+	  }else{
+	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));
+	  }
+	  
 	}
+
+
+    public function admin_deleteimage($id) {
+       if($this->Session->read('ADMIN_USER')){
+       	  if(!empty($id)){
+       	  	 $image = $this->Image->findById($id);
+       	  	 //echo $video['Video']['article_id'];
+       	  	 //echo '<pre>'; print_r($video); die();
+		  	 unlink(WWW_ROOT.'img'.DS.'articles'.DS.$image['Image']['path']);
+		  	 
+		  	 $deleted = $this->Image->delete($id);
+		  	 if($deleted){
+			 	$this->Flash->set( "Image deleted." , array('element' => 'success'));	
+		        return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$image['Image']['article_id'],'admin'=>true));
+			 }else{
+			 	$this->Flash->set( "Invalid data" , array('element' => 'warning'));	
+		        return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));
+			 }
+		  }else{
+		  	return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		  }
+       }else{
+	   	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	   }
+	}
+
 	
 }
 ?>

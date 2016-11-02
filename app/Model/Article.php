@@ -8,6 +8,9 @@ class Article extends AppModel {
 						         ),
 						         'Videos' => array(
 						            'className' => 'Video'
+						         ),
+						         'Images' => array(
+						            'className' => 'Image'
 						         )
                            );
 }

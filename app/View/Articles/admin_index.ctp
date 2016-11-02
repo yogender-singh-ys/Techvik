@@ -13,6 +13,7 @@
 								
 								<th>Heading</th>
 								<th>Category</th>
+								<th>Images</th>
 								<th>Video</th>
 								<th>Actions</th>
 							</tr>
@@ -23,6 +24,7 @@
 							   <tr class="odd gradeX">
 								<td><h5><?php echo $article['Article']['headline'] ?></h5><?php echo $article['Article']['subheadline'] ?></td>
 								<td><?php echo count($article['Categories']) ?></td>
+								<td><?php echo count($article['Images']) ?></td>
 								<td><?php echo count($article['Videos']) ?></td>
 								<td>
 									<?php echo $this->Html->link('Edit',array('controller' => 'articles','action' => 'add/'.$article['Article']['id'],'admin' => true),array('class'=>'btn btn-warning')); ?>

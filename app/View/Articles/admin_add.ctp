@@ -282,6 +282,25 @@
 			    </div>
 			    
 			    <?php echo $this->Form->end(); ?>
+			    
+					    <?php if(count($images)>0){ ?>
+						&nbsp;
+						<div class="col-sm-12" style="text-align: center">
+						   <?php 
+						       $image_counter = 1;
+						       foreach ($images as $image) {  ?>
+						       
+						       <div class="col-sm-3" style="padding-bottom: 10px;">
+						         <?php echo $this->Html->image('articles/'.$image['Image']['path'],array("style"=>"width: 150px; height: 150px;")); ?>
+						         <?php echo $this->Html->link('Delete',array('controller' => 'articles','action' => 'deleteimage/'.$image['Image']['id'],'admin' => true),array('class'=>'')); ?> 	
+						         
+						       </div>
+						       <?php if( $image_counter == 4){echo '</div><div class="col-sm-12" style="text-align: center" >'; $image_counter = 0; }else{$image_counter++;} ?>
+					        
+					     <?php  } ?>			
+					   </div>	
+					   <?php  } ?>
+					   
 			 </div>
 		   </div> 	    
            
