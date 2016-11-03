@@ -15,8 +15,8 @@ class ArticlesController extends AppController {
 		  return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
 		}
 	}
-
-    public function admin_add($id=""){
+	
+	public function admin_add($id=""){
         if($this->Session->read('ADMIN_USER')){
 			$this->layout = "admin_dashboard";
 			
@@ -43,6 +43,7 @@ class ArticlesController extends AppController {
 					  }
 					  else{
 					  	 $this->request->data['Article']['alias'] = $this->Misc->slugify($this->request->data['Article']['headline']);
+
 					  	 $this->Article->create();
 					  	 $result = $this->Article->save(($this->request->data));
 					  	 $this->Flash->set( "Article edited." , array('element' => 'success'));	
@@ -65,6 +66,7 @@ class ArticlesController extends AppController {
 					  }
 					  else{
 					  	 $this->request->data['Article']['alias'] = $this->Misc->slugify($this->request->data['Article']['headline']);
+					  	 $this->request->data['Article']['deleted'] = "1";
 					  	 $this->Article->create();
 					  	 $result = $this->Article->save(($this->request->data));
 					  	 $this->Flash->set( "Article added." , array('element' => 'success'));	
@@ -78,88 +80,10 @@ class ArticlesController extends AppController {
 		  return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
 		}
 	}
-
-    public function admin_delete($id) {
-      if($this->Session->read('ADMIN_USER')){
-      	if(!empty($id)){
-      		
-			$deletedArticle = $this->Article->save(array('Article'=>array('id'=>$id,'deleted'=>'0')));
-			if($deletedArticle){
-				$this->Flash->set( "Article deleted." , array('element' => 'success'));
-			}else{
-				$this->Flash->set( "Invalid data." , array('element' => 'warning'));
-			}
-			return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
-		}else{
-			return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
-		}
-      }else{
-	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
-	  }
-	}
-
-    public function admin_videos(){
-      if($this->Session->read('ADMIN_USER')){
-      	if(!empty($this->request->data)){
-		  
-		  $validatedResponse = $this->Misc->validateData($this->request->data['Video'],array('video_id'=>'Video data','video_keys'=>'Video keys'));	
-		  if(count($validatedResponse)>0){
-		  	if(!empty($this->request->data['Video']['video_id'])){
-		  	  $this->Flash->set( ucfirst(implode('<br/>',$validatedResponse)) , array('element' => 'warning'));	
-			  return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Video']['video_id'],'admin'=>true));
-			}else{
-				$this->Flash->set( "Invalid Data provide video information in blank" , array('element' => 'warning'));	
-			  return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
-			}
-		  }else{
-		  	$keyArray = explode(',',str_replace(' ','',$this->request->data['Video']['video_keys']));
-		  	$data = array();
-		  	foreach($keyArray as $key){
-				if(!empty(trim($key))){
-					$tempArray = array();
-					$tempArray['Video']['youtube_key'] = $key ;
-					$tempArray['Video']['article_id'] = $this->request->data['Video']['video_id'] ;
-					$data[] = $tempArray;
-				}
-			}
-			$this->Video->create();
-		    $this->Video->saveAll($data);
-		    $this->Flash->set( "Video updated." , array('element' => 'success'));	
-		    return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Video']['video_id'],'admin'=>true));
-		  }
-			
-		}else{
-		  return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));		
-		}
-      }else{
-	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
-	  }
-	}
-
-    public function admin_deletevideo($id) {
+	
+	public function admin_categories() {
        if($this->Session->read('ADMIN_USER')){
-       	  if(!empty($id)){
-       	  	 $video = $this->Video->findById($id);
-       	  	 //echo $video['Video']['article_id'];
-       	  	 //echo '<pre>'; print_r($video); die();
-		  	 $deleted = $this->Video->delete($id);
-		  	 if($deleted){
-			 	$this->Flash->set( "Video deleted." , array('element' => 'success'));	
-		        return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$video['Video']['article_id'],'admin'=>true));
-			 }else{
-			 	$this->Flash->set( "Invalid data" , array('element' => 'warning'));	
-		        return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));
-			 }
-		  }else{
-		  	return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
-		  }
-       }else{
-	   	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
-	   }
-	}
-
-    public function admin_categories() {
-       if($this->Session->read('ADMIN_USER')){
+       	   $this->autoRender = false;
        	   if(!empty($this->request->data)){
        	   	  $validatedResponse = $this->Misc->validateData($this->request->data['Article'],array('article_id'=>'Article data'));
        	   	  if( (count($validatedResponse)==0) && (count($this->request->data['category'])>0) ){
@@ -200,6 +124,97 @@ class ArticlesController extends AppController {
 	   }
 	}
 	
+	public function admin_delete($id) {
+      if($this->Session->read('ADMIN_USER')){
+      	if(!empty($id)){
+      		
+			$deletedArticle = $this->Article->save(array('Article'=>array('id'=>$id,'deleted'=>'0')));
+			
+			if($deletedArticle){
+				$this->ArticleCategory->deleteAll(array('article_id'=>$id));
+				$this->Video->deleteAll(array('article_id'=>$id));
+				$images = $this->Image->find('all',array('conditions'=>array('article_id'=>$id))); 
+				foreach($images as $image){
+					unlink(WWW_ROOT.'img'.DS.'articles'.DS.$image['Image']['path']);
+				}
+				$this->Image->deleteAll(array('article_id'=>$id));
+				$this->Flash->set( "Article deleted." , array('element' => 'success'));
+			}else{
+				$this->Flash->set( "Invalid data." , array('element' => 'warning'));
+			}
+			return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		}else{
+			return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		}
+      }else{
+	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	  }
+	}
+	
+	public function admin_videos(){
+	  $this->autoRender = false;
+      if($this->Session->read('ADMIN_USER')){
+      	 if(!empty($this->request->data)){
+      	 	$validatedResponse = $this->Misc->validateData($this->request->data['Video'],array('video_id'=>'Video data','video_keys'=>'Video keys'));	
+      	 	 if(count($validatedResponse)>0){
+      	 	 	
+				  	if(!empty($this->request->data['Video']['video_id'])){
+				  	  $this->Flash->set( ucfirst(implode('<br/>',$validatedResponse)) , array('element' => 'warning'));	
+					  return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Video']['video_id'],'admin'=>true));
+					}else{
+						$this->Flash->set( "Invalid Data provide video information in blank" , array('element' => 'warning'));	
+					  return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+					}
+		  
+      	 	 }else{
+			 	 
+			 	 $keyArray = explode(',',str_replace(' ','',$this->request->data['Video']['video_keys']));
+		  	     $data = array();
+		  	     
+		  	     foreach($keyArray as $key){
+				     if(trim($key)!=""){
+					 	$tempArray = array();
+						$tempArray['Video']['youtube_key'] = $key ;
+						$tempArray['Video']['article_id'] = $this->request->data['Video']['video_id'] ;
+						$data[] = $tempArray;
+					 }
+				 }
+				 $this->Video->create();
+			     $this->Video->saveAll($data);
+			     $this->Flash->set( "Video updated." , array('element' => 'success'));	
+			     return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$this->request->data['Video']['video_id'],'admin'=>true));
+				 
+			 }
+      	 }else{
+		 	return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));
+		 }
+      }else{
+	  	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	  }
+	}
+    
+    public function admin_deletevideo($id) {
+       if($this->Session->read('ADMIN_USER')){
+       	  if(!empty($id)){
+       	  	 $video = $this->Video->findById($id);
+       	  	 //echo $video['Video']['article_id'];
+       	  	 //echo '<pre>'; print_r($video); die();
+		  	 $deleted = $this->Video->delete($id);
+		  	 if($deleted){
+			 	$this->Flash->set( "Video deleted." , array('element' => 'success'));	
+		        return $this->redirect(array('controller' => 'articles', 'action' => 'add/'.$video['Video']['article_id'],'admin'=>true));
+			 }else{
+			 	$this->Flash->set( "Invalid data" , array('element' => 'warning'));	
+		        return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));
+			 }
+		  }else{
+		  	return $this->redirect(array('controller' => 'articles', 'action' => 'index','admin'=>true));	
+		  }
+       }else{
+	   	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
+	   }
+	}
+   
 	public function admin_images() {
 	  if($this->Session->read('ADMIN_USER')){
 	  	 if(!empty($this->request->data['Images']['article_id'])){
@@ -238,7 +253,6 @@ class ArticlesController extends AppController {
 	  
 	}
 
-
     public function admin_deleteimage($id) {
        if($this->Session->read('ADMIN_USER')){
        	  if(!empty($id)){
@@ -262,7 +276,5 @@ class ArticlesController extends AppController {
 	   	return $this->redirect(array('controller' => 'pages', 'action' => 'display','admin'=>false));	
 	   }
 	}
-
-	
 }
 ?>

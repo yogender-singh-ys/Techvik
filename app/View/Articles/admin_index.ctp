@@ -35,7 +35,7 @@
 							<?php } ?>
 						  <?php }else{ ?>
 						        <tr >
-								  <td colspan="4">Add Articles :-)</td>
+								  <td colspan="5">Add Articles :-)</td>
 								</tr>
 						  <?php } ?>
 						</tbody>

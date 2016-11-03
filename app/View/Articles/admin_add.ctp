@@ -266,7 +266,7 @@
 				<?php echo $this->Form->hidden('article_id',array('value'=>$this->request->data['Article']['id'])); ?>
 				
 				<div class="form-group">
-				    <label  class="col-sm-3 control-label">Video keys<span style="color:red">*</span></label>
+				    <label  class="col-sm-3 control-label">Select Images<span style="color:red">*</span></label>
 				    <div class="col-sm-9">
 				      <?php echo $this->Form->input('images][', array('type' => 'file',"label"=>false,"div"=>false,"class"=>"form-control","multiple","multiple"));  ?>
 				    </div>
