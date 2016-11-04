@@ -8,9 +8,9 @@ class PagesController extends AppController {
     public $uses = array('User');
 
 
-	public function display() {
+	public function index() {
 		
-		echo 'display'; die();
+		
 	}
 	
 	public function admin_index(){
